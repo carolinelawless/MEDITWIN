@@ -1,0 +1,19 @@
+
+model {
+  for (j in 1:2) {
+    gamma[j] <- logit(phi[j])
+  }
+  
+  tau1 ~ dgamma(0.001, 0.001)
+  #tau2 ~ dgamma(0.001, 0.001)
+  tau2 ~ dnorm(0, 1)
+  
+  for (k in 1:K) {
+    theta[k] ~ dnorm(tau2, 1)
+    I[k] <- step(theta[k]) + 1
+    eta[k] ~ dnorm(gamma[I[k]], tau1)
+    logit(p[k]) <- eta[k]
+    Y[k] ~ dbin(p[k], n[k])
+  }
+}
+

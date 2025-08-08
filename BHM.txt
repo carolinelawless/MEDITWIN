@@ -1,0 +1,12 @@
+
+model {
+  mu ~ dnorm(0, 10^3)
+  z ~ dnorm(0,1)
+  tau <- abs(z)
+  for (i in 1:k) {
+    theta[i] ~ dnorm(mu, tau^2)
+    logit(p[i]) <- theta[i]
+    Y[i] ~ dbin(p[i], n[i])
+  }
+}
+
