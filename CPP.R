@@ -1,7 +1,7 @@
 #########################################################################
 # Calibrated power prior (CPP) 
 # 
-# CL
+# CL 08/2025
 #########################################################################
 
 
@@ -13,29 +13,33 @@ library(coda)
 
 N <- 20 #number in population
 
-Y0 <- 2
-n0 <- N
 
-Y <- 11
-n <- N
+# Generate example data
+set.seed(123)
+Y0_vec <- rbinom(N, 1, 0.2)
+Y_vec  <- rbinom(N, 1, 0.8)
 
 
-distance <- function(Y0, Y, a = 0, b = 1){
+alpha_calibration <- function(Y0, Y, a = 0, b = 1){
   l0 <- length(Y0)
   l <- length(Y)
   s <- max(l0, l)**0.25*as.numeric(ks.test(Y0, Y)[1])
-  d <- 1/(1 + exp(a + b*log(s)))
-  return(d)
+  alpha <- 1/(1 + exp(a + b*log(s)))
+  return(alpha)
 }
 
-alpha <- distance(Y0, Y)
+
+# Calibration
+alpha <- alpha_calibration(Y0_vec, Y_vec)
+
+
 
 # Data for JAGS
 data_jags <- list(
-  Y = Y,
-  n = n,
-  Y0 = Y0,
-  n0 = n0,
+  Y = sum(Y_vec),
+  n = length(Y_vec),
+  Y0 = sum(Y0_vec),
+  n0 = length(Y0_vec),
   alpha = alpha,
   zeros = 0
 )
@@ -70,7 +74,9 @@ summary(samples)
 # Extract samples as a matrix
 samples_mat <- as.matrix(samples)
 
+head(samples_mat)
 
+mean(samples_mat[,"theta"])
 
 
 
